@@ -30,7 +30,8 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "sha256": "^0.2.0",
-    "uuid": "^8.0.0"
+    "uuid": "^8.0.0",
+    "validator": "^13.1.0"
   },
   "devDependencies": {
     "@types/uuid": "^7.0.3",
