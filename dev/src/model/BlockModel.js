@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const validator = require('validator') 
+const validator = require('validator'); 
+const { Timestamp } = require('mongodb');
 
 const Schema = mongoose.Schema;
 
@@ -7,12 +8,15 @@ let blockSchema = new Schema({
     _id: new Schema.Types.ObjectId,
     index: {
         type: String,
+        trim: true,
         required: [true, 'index is required'],
         minlength: 4,
         maxlength: 200
     },
     timestamp: {
-        type: String,
+        type: Timestamp,
+        trim: true,
+        default: Timestamp,
         required: [true, 'timestamp is required'],
         minlength: 4,
         maxlength: 200
@@ -25,18 +29,21 @@ let blockSchema = new Schema({
     },
     transaction: {
         type: String,
+        trim: true,
         required: [true, 'transaction is required'],
         minlength: 4,
         maxlength: 200
     },
     nonce: {
         type: String,
+        trim: true,
         required: [true, 'nonce is required'],
         minlength: 4,
         maxlength: 200
     },
     hachage: {
         type: String,
+        trim: true,
         required: [true, 'hachage is required'],
         minlength: 4,
         maxlength: 200
@@ -44,11 +51,12 @@ let blockSchema = new Schema({
     confirmations: {
         type: Number,
         required: [true, 'confirmations is required'],
-        minlength: 4,
+        //minlength: 4,
         maxlength: 200
     },
     previousBlock: {
         type: String,
+        trim: true,
         required: [true, 'previous block is required'],
         minlength: 4,
         maxlength: 200
@@ -57,3 +65,7 @@ let blockSchema = new Schema({
     // Define MongoDB Collection
     collection: 'blocks'
 })
+
+const Block = mongoose.model('Block', blockSchema);
+
+module.exports = Block;

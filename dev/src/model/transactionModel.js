@@ -13,12 +13,14 @@ let transactionSchema = new Schema({
     },
     sender: {
         type: String,
+        trim: true,
         required: [true, 'sender is required'],
         minlength: 4,
         maxlength: 200
     },
     recipient: {
         type: String,
+        trim: true,
         required: [true, 'recipient is required'],
         minlength: 4,
         maxlength: 200
@@ -33,3 +35,7 @@ let transactionSchema = new Schema({
     // Define MongoDB Collection
     collection: 'transactions'
 })
+
+const Transactions = mongoose.model('transaction', transactionSchema);
+
+module.exports = Transactions;
