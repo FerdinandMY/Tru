@@ -18,6 +18,11 @@ let walletSchema = new Schema({
         required: [true, 'bitcoin Balance is required'],
         minlength: 4,
         maxlength: 200
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
     }
 }, {
     // Define MongoDB Collection

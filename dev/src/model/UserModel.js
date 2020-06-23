@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const validator = require('validator')
-
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 const Schema = mongoose.Schema;
 
-let userSchema = new Schema({
-    //_id: new Schema.Types.ObjectId,
+const userSchema = new mongoose.Schema({ 
     nom: {
         type: String,
         required: [true, 'Name is required'],
@@ -14,7 +14,6 @@ let userSchema = new Schema({
     },
     prenom: {
         type: String,
-        //required: [true, 'FirstName is required'],
         trim: true,
         minlength: 4,
         maxlength: 200
@@ -22,6 +21,7 @@ let userSchema = new Schema({
     email: {
         type: String,
         trim: true,
+        unique: true,
         lowercase: true,
         required: [true, 'Email is required'],
         validate(value) {
@@ -37,13 +37,7 @@ let userSchema = new Schema({
         type: String,
         trim: true,
         unique: true, 
-        /*validate: {
-            validator: function(v) {
-            return /\d{3}-\d{3}-\d{4}/.test(v);
-        },
-            message: props => `${props.value} is not a valid phone number!`
-        },*/
-        //required: [true, 'User phone number required']
+        required: [true, 'User phone number required']
     },
     password: {
         type: String,
@@ -63,13 +57,11 @@ let userSchema = new Schema({
     ville: {
         type: String,
         trim: true,
-        //required: [true, 'Town is required'],
         minlength: 4,
         maxlength: 200
     },
     codepostal:{
         type: Number,
-        //required: [true, 'zip code is required'],
         minlength: 4,
         trim: true,
         maxlength: 200
@@ -77,35 +69,30 @@ let userSchema = new Schema({
     pays: {
         type: String,
         trim: true,
-        //required: [true, 'country is required'],
         minlength: 4,
         maxlength: 200
     },
     unite: {
         type: String,
         trim: true,
-        //required: [true, 'unite is required'],
         minlength: 4,
         maxlength: 200
     },
     votre_utilite_de_la_plateforme: {
         type: String,
         trim: true,
-        //required: [true, 'plateforme utility is required'],
         minlength: 4,
         maxlength: 200
     },
     votre_source_de_revenu: {
         type: String,
         trim: true,
-        //required: [true, 'source of revenu is required'],
         minlength: 4,
         maxlength: 200
     },
     statut_professionnel: {
         type: String,
         trim: true,
-       // required: [true, 'professionnal statut is required'],
         minlength: 4,
         maxlength: 200
     },
@@ -119,10 +106,78 @@ let userSchema = new Schema({
     accountCreated: {
         type: Date,
         default: Date.now
+    },
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
+})
+
+userSchema.virtual('transactions', {
+    ref: 'Transaction',
+    localField: '_id',
+    foreignField: 'sender'
+})
+
+userSchema.virtual('pendingTransaction', {
+    ref: 'Pendingtransaction',
+    localField: '_id',
+    foreignField: 'sender'
+})
+
+userSchema.methods.toJSON = function () {
+    const user = this
+    const userObject = user.toObject()
+
+    delete userObject.password
+    delete userObject.tokens
+
+    return userObject
+}
+userSchema.methods.generateAuthToken = async function () {
+    const user = this
+    const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
+
+    user.tokens = user.tokens.concat({ token })
+    await user.save()
+
+    return token
+}
+
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await User.findOne({ email })
+   // console.log(user)
+    if (!user) {
+        throw new Error('Unable to login')
     }
+
+    const isMatch = await bcrypt.compare(password, user.password)
+
+    //console.log(isMatch)
+    if (!isMatch) {
+        throw new Error('Unable to login')
+    }
+
+    return user
+}
+// Hash the plain text password before saving
+userSchema.pre('save', async function (next) {
+    const user = this
+
+    if (user.isModified('password')) {
+        user.password = await bcrypt.hash(user.password, 8)
+    }
+
+    next()
+})
+
+/*let userSchema = new Schema({
+    
 }, { 
     collection: 'users'
-})
+})*/
 
 const User = mongoose.model('User', userSchema);
 

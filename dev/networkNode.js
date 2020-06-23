@@ -2,12 +2,21 @@ const Blockchain = require("./blockchain");
 
 const express = require("express");
 const app = express();
+//database connection file
+require("./src/db/mongoose")
+const userRouter = require('./src/routers/user')
+const transactionRouter = require('./src/routers/transaction')
+const pendingTransactionRouter = require('./src/routers/pendingTransaction')
+const walletRouter = require('./src/routers/wallet')
+const blockRouter = require('./src/routers/block')
+const jwt = require('jsonwebtoken')
 const bodyParser = require("body-parser");
 // to create a unique random string and to use that string to network node adresse
 const uuid = require("uuid");
 const port = process.argv[2];
 
 const rp = require("request-promise");
+const e = require("express");
 //console.log(rp);
 const nodeAddress = uuid.v1().split("-").join("");
 
@@ -15,6 +24,11 @@ const bitcoin = new Blockchain();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(userRouter)
+app.use(transactionRouter)
+app.use(pendingTransactionRouter)
+app.use(walletRouter)
+app.use(blockRouter)
 //app.use(bodyParser.urlencoded({ extended: false }));
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -23,9 +37,16 @@ app.get("/blockchain", function (req, res) {
 });
 
 app.post("/transaction", function (req, res) {
+  //const newTransaction = new PendingTransactions(req.body);
   const newTransaction = req.body;
-  const blockIndex = bitcoin.addTransactionToPendingTransaction(newTransaction);
-  res.json({ note: `Transaction will be added in block ${blockIndex}.` });
+ // newTransaction.save().then(() => {
+    const blockIndex = bitcoin.addTransactionToPendingTransaction(newTransaction);
+    res.json({ note: `Transaction will be added in block ${blockIndex}.` });
+   /* res.status(201).send(user)
+  }).catch((e) => {
+    res.status(400).send(e)
+  })*/
+  
 });
 
 app.post("/transaction/broadcast", function (req, res) {

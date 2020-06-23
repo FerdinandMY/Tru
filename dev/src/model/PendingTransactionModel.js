@@ -12,18 +12,16 @@ let pendingtransactionSchema = new Schema({
         maxlength: 200
     },
     sender: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         trim: true,
         required: [true, 'sender is required'],
-        minlength: 4,
-        maxlength: 200
+        ref: 'User'
     },
     recipient: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         trim: true,
         required: [true, 'recipient is required'],
-        minlength: 4,
-        maxlength: 200
+        ref: 'User'
     },
     transactionId: {
         type: Number,
@@ -32,7 +30,8 @@ let pendingtransactionSchema = new Schema({
         maxlength: 200
     },
     isConfirmed: {
-        type:Number,
+        type:Boolean,
+        default:false,
         required: true,
         minlength: 4,
         maxlength: 200

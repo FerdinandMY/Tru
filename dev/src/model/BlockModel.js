@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator'); 
-const { Timestamp } = require('mongodb');
-
 const Schema = mongoose.Schema;
 
-let blockSchema = new Schema({
+const blockSchema = new mongoose.Schema({
     _id: new Schema.Types.ObjectId,
     index: {
         type: String,
@@ -14,9 +12,9 @@ let blockSchema = new Schema({
         maxlength: 200
     },
     timestamp: {
-        type: Timestamp,
+        type: Date,
         trim: true,
-        default: Timestamp,
+        default: Date.now,
         required: [true, 'timestamp is required'],
         minlength: 4,
         maxlength: 200
@@ -28,11 +26,10 @@ let blockSchema = new Schema({
         maxlength: 200
     },
     transaction: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         trim: true,
         required: [true, 'transaction is required'],
-        minlength: 4,
-        maxlength: 200
+        ref: 'Transaction'
     },
     nonce: {
         type: String,
@@ -61,10 +58,14 @@ let blockSchema = new Schema({
         minlength: 4,
         maxlength: 200
     }
-}, {
-    // Define MongoDB Collection
-    collection: 'blocks'
 })
+
+blockSchema.virtual('transactions', {
+    ref: 'Transaction',
+    localField: '_id',
+    foreignField: 'transaction'
+})
+
 
 const Block = mongoose.model('Block', blockSchema);
 

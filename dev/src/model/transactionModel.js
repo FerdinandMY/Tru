@@ -8,22 +8,20 @@ let transactionSchema = new Schema({
     amount: {
         type: Number,
         required: [true, 'amount is required'],
-        minlength: 4,
+        //minlength: 4,
         maxlength: 200
     },
     sender: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         trim: true,
         required: [true, 'sender is required'],
-        minlength: 4,
-        maxlength: 200
+        ref: 'User'
     },
     recipient: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         trim: true,
         required: [true, 'recipient is required'],
-        minlength: 4,
-        maxlength: 200
+        ref: 'User'
     },
     transactionId: {
         type: Number,
@@ -36,6 +34,6 @@ let transactionSchema = new Schema({
     collection: 'transactions'
 })
 
-const Transactions = mongoose.model('transaction', transactionSchema);
+const Transactions = mongoose.model('Transaction', transactionSchema);
 
 module.exports = Transactions;
